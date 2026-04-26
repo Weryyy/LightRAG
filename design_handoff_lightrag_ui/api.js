@@ -180,16 +180,18 @@ async function cancelPipeline() {
   return httpJson(`${LIGHTRAG_URL}/documents/cancel_pipeline`, { method: 'POST' });
 }
 
-// ── Document content (best effort) ───────────────────────────────────────────
-// LightRAG doesn't expose a single "give me the text" endpoint, but
-// /documents/paginated returns content_summary. For full content we hit
-// /documents/{id}/content if it exists; otherwise fall back to the summary.
+// ── Document content ─────────────────────────────────────────────────────────
+// serve_ui.py exposes /local/document-content/<doc_id> which reconstructs the
+// full text by joining chunks from kv_store_text_chunks.json in order.
+const UI_URL = window.UI_URL || 'http://localhost:8765';
+
 async function getDocumentContent(docId, fallbackSummary = '') {
   try {
-    const data = await httpJson(`${LIGHTRAG_URL}/documents/${encodeURIComponent(docId)}/content`);
-    return (typeof data === 'string') ? data : (data.content || data.text || fallbackSummary);
+    const data = await httpJson(`${UI_URL}/local/document-content/${encodeURIComponent(docId)}`);
+    if (data.content) return data.content;
+    throw new Error('empty');
   } catch {
-    return fallbackSummary || '*Document content not available — LightRAG does not expose a content endpoint for this doc.*';
+    return fallbackSummary || '*Documento aún no procesado o sin chunks disponibles.*';
   }
 }
 
