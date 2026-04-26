@@ -14,7 +14,10 @@ if errorlevel 1 (
 )
 echo Ollama listo.
 
-echo Iniciando LightRAG en http://localhost:9621 ^(Web UI: http://localhost:9621/ui^)
+echo Iniciando UI en http://localhost:8765 ...
+start "LightRAG UI" cmd /c "venv\Scripts\python.exe design_handoff_lightrag_ui\serve_ui.py"
+
+echo Iniciando LightRAG en http://localhost:9621 ...
 echo.
 venv\Scripts\lightrag-server.exe --port 9621 --working-dir D:\LightRAG\rag_storage ^
   --timeout 600 ^
