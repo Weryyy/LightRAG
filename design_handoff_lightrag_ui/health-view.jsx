@@ -162,9 +162,9 @@ function HealthView() {
   };
 
   return (
-    <div style={hv.root}>
+    <div className="health-root" style={hv.root}>
       {/* Metric cards */}
-      <div style={hv.metricsGrid}>
+      <div className="health-grid" style={hv.metricsGrid}>
         {/* Total docs */}
         <div style={hv.card}>
           <div style={hv.cardLabel}>Knowledge Base</div>
@@ -224,7 +224,7 @@ function HealthView() {
       </div>
 
       {/* Live Pipeline */}
-      <div style={{ marginBottom: '24px', minHeight: '320px', display: 'flex' }}>
+      <div className="health-pipeline" style={{ marginBottom: '24px', display: 'flex' }}>
         <PipelinePanel />
       </div>
 
@@ -281,13 +281,13 @@ function HealthView() {
 }
 
 const hv = {
-  root: { display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '24px 32px', gap: '20px' },
-  metricsGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flexShrink: 0 },
+  root: { display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', gap: '20px', minHeight: '100%' },
+  metricsGrid: { display: 'grid', gap: '12px', flexShrink: 0 },
   card: { background: '#111', border: '1px solid #1f1f1f', borderRadius: '8px', padding: '16px 18px' },
   cardLabel: { fontSize: '10px', color: '#444', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', marginBottom: '12px' },
   bigNum: { fontSize: '26px', fontWeight: '700', color: '#f0f0f0', lineHeight: 1.1 },
   subText: { fontSize: '11px', color: '#555', marginTop: '4px', fontFamily: "'JetBrains Mono', monospace" },
-  logSection: { flex: 1, background: '#111', border: '1px solid #1f1f1f', borderRadius: '8px', display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 },
+  logSection: { background: '#111', border: '1px solid #1f1f1f', borderRadius: '8px', display: 'flex', flexDirection: 'column', minHeight: '200px', maxHeight: '360px', overflow: 'hidden' },
   logHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid #1a1a1a' },
   logTitle: { fontSize: '11px', color: '#555', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em' },
   logBody: { overflowY: 'auto', flex: 1, fontFamily: "'JetBrains Mono', monospace" },

@@ -65,7 +65,8 @@ function GraphView() {
   const [filter, setFilter] = React.useState(null);
   const [search, setSearch] = React.useState('');
   const [nodeSearch, setNodeSearch] = React.useState('');
-  const [dragging, setDragging] = React.useState(null); // { id, offsetX, offsetY }
+  const [dragging, setDragging] = React.useState(null);
+  const [showPanel, setShowPanel] = React.useState(false);
   const svgRef = React.useRef(null);
   const frameRef = React.useRef(null);
   const alphaRef = React.useRef(1);
@@ -206,6 +207,19 @@ function GraphView() {
     alphaRef.current = Math.max(alphaRef.current, 0.15);
   };
 
+  const onTouchStart = (e, nodeId) => {
+    e.preventDefault();
+    onNodeMouseDown(e, nodeId);
+  };
+  const onSVGTouchMove = (e) => {
+    e.preventDefault();
+    onSVGMouseMove(e);
+  };
+  const onSVGTouchEnd = (e) => {
+    e.preventDefault();
+    onSVGMouseUp();
+  };
+
   const selectedNode = nodes.find(n => n.id === selected);
   const connectedIds = selected
     ? new Set(edges.filter(([a,b]) => a === selected || b === selected).flatMap(([a,b]) => [a,b]))
@@ -263,16 +277,26 @@ function GraphView() {
       </div>
 
       {/* Main area: graph + right panels */}
-      <div style={gv.split}>
+      <div className="graph-split" style={gv.split}>
         {/* SVG Graph */}
         <div style={gv.graphPanel}>
+          <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10, display: 'flex', gap: 6 }}>
+            <button
+              onClick={() => setShowPanel(p => !p)}
+              style={{ padding: '4px 10px', borderRadius: 5, border: '1px solid #2a2a2a', background: showPanel ? '#1a1530' : '#111', color: showPanel ? '#a78bfa' : '#555', fontSize: 11, cursor: 'pointer' }}
+            >
+              {showPanel ? 'Ocultar lista' : 'Ver nodos'}
+            </button>
+          </div>
           <svg
             ref={svgRef}
-            width={W} height={H}
-            style={{ ...gv.svg, cursor: dragging ? 'grabbing' : 'default' }}
+            viewBox={`0 0 ${W} ${H}`}
+            style={{ ...gv.svg, width: '100%', height: 'auto', cursor: dragging ? 'grabbing' : 'default', touchAction: 'none' }}
             onMouseMove={onSVGMouseMove}
             onMouseUp={onSVGMouseUp}
             onMouseLeave={onSVGMouseUp}
+            onTouchMove={onSVGTouchMove}
+            onTouchEnd={onSVGTouchEnd}
           >
             <defs>
               <radialGradient id="bgGrad2" cx="50%" cy="50%" r="50%">
@@ -312,6 +336,7 @@ function GraphView() {
                   transform={`translate(${node.x},${node.y})`}
                   onClick={() => !isDrag && setSelected(selected === node.id ? null : node.id)}
                   onMouseDown={e => onNodeMouseDown(e, node.id)}
+                  onTouchStart={e => onTouchStart(e, node.id)}
                   onMouseEnter={() => setHovered(node.id)}
                   onMouseLeave={() => setHovered(null)}
                   style={{ cursor: isDrag ? 'grabbing' : 'grab' }}
@@ -356,7 +381,7 @@ function GraphView() {
         </div>
 
         {/* Right column: detail + all nodes list */}
-        <div style={gv.rightCol}>
+        <div className={`graph-right-col${showPanel ? ' visible' : ''}`} style={gv.rightCol}>
           {/* Entity detail */}
           {selectedNode && (
             <div style={gv.detailPanel}>
@@ -491,7 +516,7 @@ const gv = {
     fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', transition: 'all 150ms ease',
   },
   split: { display: 'flex', gap: '14px', flex: 1, minHeight: 0, overflow: 'hidden' },
-  graphPanel: { flex: '0 0 auto', position: 'relative' },
+  graphPanel: { flex: '1 1 auto', position: 'relative', minWidth: 0 },
   svg: { display: 'block', borderRadius: '8px', border: '1px solid #1a1a1a', userSelect: 'none' },
   legend: {
     position: 'absolute', bottom: '10px', left: '10px',

@@ -30,6 +30,13 @@
     .mobile-menu-btn { display: flex !important; }
     .mobile-overlay { display: block !important; }
   }
+  /* Landscape mobile: sidebar always hidden, hamburger always visible */
+  @media (max-height: 500px) and (orientation: landscape) {
+    aside { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; transform: translateX(-100%); transition: transform 200ms ease; }
+    aside.open { transform: translateX(0); box-shadow: 8px 0 24px rgba(0,0,0,0.6); }
+    .mobile-menu-btn { display: flex !important; }
+    .mobile-overlay { display: block !important; }
+  }
   .mobile-menu-btn { display: none; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #2a2a2a; border-radius: 6px; background: #111; color: #888; cursor: pointer; }
   .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
   input::placeholder { color: #3a3a3a; }
@@ -46,6 +53,21 @@
   .nav-item.active { background: #1a1530 !important; }
   tr:hover td { background: inherit; }
   button:hover { opacity: 0.85; }
+  /* Health view responsive */
+  .health-root { padding: 24px 32px; }
+  .health-grid { grid-template-columns: 1fr 1fr; }
+  .health-pipeline { min-height: 320px; }
+  /* Graph view responsive */
+  .graph-split { flex-direction: row; }
+  .graph-right-col { display: flex; }
+  @media (max-width: 768px) {
+    .health-root { padding: 16px 14px; }
+    .health-grid { grid-template-columns: 1fr !important; }
+    .health-pipeline { min-height: 260px; }
+    .graph-split { flex-direction: column; }
+    .graph-right-col { display: none; }
+    .graph-right-col.visible { display: flex; max-height: 260px; }
+  }
 </style>
 </head>
 <body>
@@ -128,13 +150,12 @@ function App() {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <div className={mobileMenu ? 'mobile-overlay' : ''} onClick={() => setMobileMenu(false)}></div>
-      <aside className={mobileMenu ? 'open' : ''} style={{ display: 'contents' }}>
-        <Sidebar
-          active={view}
-          onNav={(id) => { setView(id); setMobileMenu(false); }}
-          serverOnline={tweaks.serverOnline}
-        />
-      </aside>
+      <Sidebar
+        active={view}
+        mobileOpen={mobileMenu}
+        onNav={(id) => { setView(id); setMobileMenu(false); }}
+        serverOnline={tweaks.serverOnline}
+      />
 
       <main style={{
         flex: 1,
@@ -194,7 +215,7 @@ function App() {
         </div>
 
         {/* View content */}
-        <div style={{ flex: 1, overflow: 'hidden' }}>
+        <div style={{ flex: 1, overflow: view === 'health' ? 'auto' : 'hidden' }}>
           {rightView ? (
             <SplitView
               leftView={view}

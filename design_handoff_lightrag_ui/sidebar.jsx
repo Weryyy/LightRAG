@@ -45,7 +45,7 @@ function HealthIcon() {
   );
 }
 
-function Sidebar({ active, onNav, serverOnline: serverOnlineProp }) {
+function Sidebar({ active, onNav, serverOnline: serverOnlineProp, mobileOpen }) {
   const [serverOnline, setServerOnline] = React.useState(serverOnlineProp);
   const [model, setModel] = React.useState('');
 
@@ -67,7 +67,7 @@ function Sidebar({ active, onNav, serverOnline: serverOnlineProp }) {
   }, []);
 
   return (
-    <aside style={sidebarStyles.root}>
+    <aside className={mobileOpen ? 'open' : ''} style={sidebarStyles.root}>
       {/* Logo */}
       <div style={sidebarStyles.logo}>
         <GraphNodeLogo />
