@@ -1,0 +1,34 @@
+# LightRAG index — datos personales, no subir
+rag_storage/
+rag_storage.bak*/
+
+# Documentos personales indexados
+docs/
+
+# Entorno virtual
+venv/
+venv*/
+.venv/
+
+# Config con rutas locales — usa .env.example como plantilla
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+retry_progress.log
+
+# Zips y temporales
+*.zip
+test_cwd.py
+
+# Archivos grandes de modelos / embeddings que pueda generar LightRAG
+*.bin
+*.gguf
+*.safetensors
+*.pt
+*.onnx
