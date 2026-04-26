@@ -118,22 +118,33 @@ function extractSources(text) {
 }
 
 // ── Documents (paginated list) ────────────────────────────────────────────────
-async function listDocuments({ status = 'all', page = 1, pageSize = 100, search = '' } = {}) {
+// API cap is page_size<=200. Fetch all pages automatically.
+async function listDocuments({ status = 'all', search = '' } = {}) {
+  const PAGE = 200;
   const body = {
-    page,
-    page_size: pageSize,
+    page: 1,
+    page_size: PAGE,
     sort_field: 'updated_at',
     sort_direction: 'desc',
   };
   if (status && status !== 'all') body.status_filter = status;
   if (search) body.search = search;
 
-  const data = await httpJson(`${LIGHTRAG_URL}/documents/paginated`, {
+  const first = await httpJson(`${LIGHTRAG_URL}/documents/paginated`, {
     method: 'POST',
     body: JSON.stringify(body),
   });
-  // Accept either { documents: [...], pagination: {...} } or a raw list
-  const docs = data.documents || data.docs || (Array.isArray(data) ? data : []);
+  let docs = first.documents || first.docs || (Array.isArray(first) ? first : []);
+  const total = first.pagination?.total_pages || 1;
+
+  for (let p = 2; p <= total; p++) {
+    const next = await httpJson(`${LIGHTRAG_URL}/documents/paginated`, {
+      method: 'POST',
+      body: JSON.stringify({ ...body, page: p }),
+    });
+    docs = docs.concat(next.documents || next.docs || []);
+  }
+
   return docs.map(rawDocToUi);
 }
 
